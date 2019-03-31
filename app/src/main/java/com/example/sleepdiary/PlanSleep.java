@@ -63,7 +63,16 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         Button btnBack = findViewById(R.id.btnBack);
         lblHM = findViewById(R.id.lblHM);
         swOn = findViewById(R.id.swOn);
+
+        SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0);
+        txtWake.setText(sharedPlan.getString("Wake", ""));
+        txtBed.setText(sharedPlan.getString("Bed", ""));
+        bedPrep = sharedPlan.getString("bedPrep", "");
+        swOn.setChecked(sharedPlan.getBoolean("Reminders", false));
+        sbH.setProgress(sharedPlan.getInt("sbHours", 8));
+        sbM.setProgress(sharedPlan.getInt("sbMins", 0));
         lblHM.setText(displayHM());
+
         sbH.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -158,15 +167,14 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         swOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                boolReminders = isChecked;
-                if (isChecked){
-
-                }
-                else{
+                if (!isChecked){
                     Intent intent_service = new Intent(getApplicationContext(), alarmService.class);
                     intent_service.putExtra("boolReminders", isChecked);
                     startService(intent_service);
                 }
+                SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0);
+                SharedPreferences.Editor planEditor = sharedPlan.edit();
+                planEditor.putBoolean("Reminders", isChecked).apply();
             }
 
 
@@ -211,6 +219,7 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         int bH = Integer.parseInt(bed[0] + "" + bed[1]);
         int bM = Integer.parseInt(bed[3] + "" + bed[4]);
         bedPrep = subTime(bH, bM, 0, 30);
+        updateSharedPreferences();
         //txtTime.setText(addEntry.convNum(hourOfDay) + ":" + addEntry.convNum(minute));
        // calcDiff();
     }
@@ -252,6 +261,7 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
             int bH = Integer.parseInt(bed[0] + "" + bed[1]);
             int bM = Integer.parseInt(bed[3] + "" + bed[4]);
             txtWake.setText(addTime(bH, bM, sbH.getProgress(), sbM.getProgress()*5));
+            updateSharedPreferences();
         }
 //        else {
 //            char[] bed = txtWake.getText().toString().toCharArray();
@@ -260,6 +270,16 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
 //            txtBed.setText(subTime(wH, wM, sbH.getProgress(), sbM.getProgress()*5));
 //        }
 
+    }
+
+    private void updateSharedPreferences(){
+        SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0);
+        SharedPreferences.Editor planEditor = sharedPlan.edit();
+        planEditor.putString("Wake", txtWake.getText().toString()).apply();
+        planEditor.putString("Bed", txtBed.getText().toString()).apply();
+        planEditor.putInt("sbHours", sbH.getProgress()).apply();
+        planEditor.putInt("sbMins", sbM.getProgress()).apply();
+        planEditor.putString("bedPrep", bedPrep).apply();
     }
 
     protected void onPause() {
