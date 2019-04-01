@@ -295,7 +295,7 @@ public class alarmService extends Service {
         calendar.set(Calendar.MINUTE, min);
         manager.setExact(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
         switch (mute){
-            case 0 : return;
+            case 0 : break;
             case 1 : {
                 AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                 assert audioManager != null;
@@ -303,19 +303,22 @@ public class alarmService extends Service {
                 SharedPreferences.Editor volEditor = sharedVols.edit();
                 volEditor.putInt("Notifs", audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)).apply();
                 volEditor.putInt("Music", audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).apply();
-                volEditor.putInt("Ringer", audioManager.getRingerMode()).apply();
+                //volEditor.putInt("Ringer", audioManager.getRingerMode()).apply();
+
                 audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
-                audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                //audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+                break;
             }
             case 2 : {
                 AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                 assert audioManager != null;
-                audioManager.getRingerMode();
+                //audioManager.getRingerMode();
                 SharedPreferences sharedVols = getSharedPreferences("volumes", 0);
                 audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, sharedVols.getInt("Notifs",0), 0);
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sharedVols.getInt("Music",0), 0);
-                audioManager.setRingerMode(sharedVols.getInt("Ringer",0));
+                //audioManager.setRingerMode(sharedVols.getInt("Ringer",0));
+                break;
             }
         }
     }
