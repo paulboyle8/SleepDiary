@@ -5,9 +5,11 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.TimePickerDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.icu.util.Calendar;
 import android.support.v4.app.NotificationCompat;
@@ -69,6 +71,7 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         txtBed.setText(sharedPlan.getString("Bed", ""));
         bedPrep = sharedPlan.getString("bedPrep", "");
         swOn.setChecked(sharedPlan.getBoolean("Reminders", false));
+        if (swOn.isChecked()) btnSubmit.setVisibility(View.VISIBLE); else btnSubmit.setVisibility(View.GONE);
         sbH.setProgress(sharedPlan.getInt("sbHours", 8));
         sbM.setProgress(sharedPlan.getInt("sbMins", 0));
         lblHM.setText(displayHM());
@@ -111,20 +114,24 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         txtWake.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0);
+                int hour = Integer.parseInt(sharedPlan.getString("Wake", "07:00").substring(0,2));
+                int min = Integer.parseInt(sharedPlan.getString("Wake", "07:00").substring(3,5));
                 wakeTrue = true;
-                TimePickerDialog timePickerDialog = new TimePickerDialog(PlanSleep.this, PlanSleep.this, 7, 0, DateFormat.is24HourFormat(getApplicationContext())); //set 24 hour bool
+                TimePickerDialog timePickerDialog = new TimePickerDialog(PlanSleep.this, PlanSleep.this, hour, min, DateFormat.is24HourFormat(getApplicationContext())); //set 24 hour bool
                 timePickerDialog.setTitle("Set wake-up time");
-                //return
                 timePickerDialog.show();
             }
         });
         txtBed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0);
+                int hour = Integer.parseInt(sharedPlan.getString("Bed", "23:00").substring(0,2));
+                int min = Integer.parseInt(sharedPlan.getString("Bed", "23:00").substring(3,5));
                 wakeTrue = false;
-                TimePickerDialog timePickerDialog = new TimePickerDialog(PlanSleep.this, PlanSleep.this, 22, 0, DateFormat.is24HourFormat(getApplicationContext())); //set 24 hour bool
+                TimePickerDialog timePickerDialog = new TimePickerDialog(PlanSleep.this, PlanSleep.this, hour, min, DateFormat.is24HourFormat(getApplicationContext())); //set 24 hour bool
                 timePickerDialog.setTitle("Set bed time");
-                //return
                 timePickerDialog.show();
             }
         });
@@ -139,11 +146,11 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
                 notificationManager.createNotificationChannel(notificationChannel);*/
                 SharedPreferences sharedTimes = getSharedPreferences("times", 0);
                 SharedPreferences.Editor spEditor = sharedTimes.edit();
-                spEditor.putString("ST", txtBed.getText().toString()).commit();
-                spEditor.putString("ET", txtWake.getText().toString()).commit();
+                spEditor.putString("ST", txtBed.getText().toString()).apply();
+                spEditor.putString("ET", txtWake.getText().toString()).apply();
                 long msSlept = msToUnits.getMSfromUnits(sbH.getProgress(), (sbM.getProgress())*5);
                 int sSlept = (int)(msSlept/1000);
-                spEditor.putLong("MS", msSlept).commit();
+                spEditor.putLong("MS", msSlept).apply();
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
                 Calendar calendar = Calendar.getInstance();
                 Date SD = calendar.getTime();
@@ -151,8 +158,8 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
                 Date ED = calendar.getTime();
                 String strSD = dateFormat.format(SD);
                 String strED = dateFormat.format(ED);
-                spEditor.putString("SD", strSD).commit();
-                spEditor.putString("ED", strED).commit();
+                spEditor.putString("SD", strSD).apply();
+                spEditor.putString("ED", strED).apply();
 
                 Intent intent_service = new Intent(getApplicationContext(), alarmService.class);
                 intent_service.putExtra("bed", txtBed.getText()); //Optional parameters
@@ -171,6 +178,10 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
                     Intent intent_service = new Intent(getApplicationContext(), alarmService.class);
                     intent_service.putExtra("boolReminders", isChecked);
                     startService(intent_service);
+                    btnSubmit.setVisibility(View.GONE);
+                }
+                else{
+                    btnSubmit.setVisibility(View.VISIBLE);
                 }
                 SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0);
                 SharedPreferences.Editor planEditor = sharedPlan.edit();
@@ -190,7 +201,17 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
                 .setContentText("Go to bed by " + txtBed.getText() + " to get " + lblHM.getText() + " sleep")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(false);*/
+        final BroadcastReceiver wakeSwitch = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                swOn.setChecked(false);
+                unregisterReceiver(this);
+            }
+        };
+        registerReceiver(wakeSwitch, new IntentFilter("WakeUp"));
     }
+
+
 
     public String displayHM(){
 //        SeekBar sbH = findViewById(R.id.sbH);
