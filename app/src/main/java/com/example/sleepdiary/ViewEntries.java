@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -238,7 +239,30 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
         //final AlertDialog.Builder editEntry = new AlertDialog.Builder(ViewEntries.this);
         final String[] whereArgs = new String[] {SD, ST};
         switch (option){
-            case "View": break;
+            case "View": {Intent intent = new Intent(ViewEntries.this, addEntry.class);
+            intent.putExtra("Action", 'V');
+            intent.putExtra("whereArgs", whereArgs); //Optional parameters
+
+            final DBHelper dbHelper = new DBHelper(ViewEntries.this);
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            Cursor crsr = db.rawQuery("SELECT StartDate,StartTime,EndDate,EndTime,MsSlept,Rating,Dream FROM SleepDiaryDB WHERE StartDate = ? AND StartTime = ?", whereArgs);
+            diaryRecord ViewEntry = null;
+            if (crsr.moveToFirst()){
+                do {
+                    ViewEntry = new diaryRecord(crsr.getString(0),crsr.getString(1),crsr.getString(2),crsr.getString(3),crsr.getLong(4),crsr.getFloat(5),crsr.getString(6));
+                } while(crsr.moveToNext());
+            }
+            crsr.close();
+            db.close();
+            intent.putExtra("vSD", ViewEntry.StartDate);
+            intent.putExtra("vST", ViewEntry.StartTime);
+            intent.putExtra("vED", ViewEntry.EndDate);
+            intent.putExtra("vET", ViewEntry.EndTime);
+            intent.putExtra("vMS", ViewEntry.MsSlept);
+            intent.putExtra("vRT", ViewEntry.Rating);
+            intent.putExtra("vDR", ViewEntry.Dream);
+            startActivity(intent);
+            }
             case "Edit": break;
             case "Delete": final AlertDialog.Builder deleteEntry = new AlertDialog.Builder(ViewEntries.this);
                 deleteEntry.setTitle("Sleep Diary Record")

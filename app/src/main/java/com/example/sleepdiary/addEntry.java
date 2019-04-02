@@ -4,9 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
 import android.icu.text.SimpleDateFormat;
 import android.icu.util.Calendar;
 import android.support.v7.app.AlertDialog;
@@ -21,9 +19,6 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-
-import java.sql.Date;
-import java.sql.Time;
 import java.text.ParseException;
 
 public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
@@ -167,6 +162,19 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             txtEndDate.setText(spTimes.getString("ED", ""));
             lblSlept.setText(msToUnits.get(msSlept));
         }
+        else if (extras != null && extras.getChar("Action")=='V') {
+            TextView lblSlept = findViewById(R.id.lblSlept);
+            RatingBar ratingBar = findViewById(R.id.ratingBar);
+            TextView txtDream = findViewById(R.id.txtDream);
+            txtStartDate.setText(extras.getString("vSD"));
+            txtStartTime.setText(extras.getString("vST"));
+            txtEndDate.setText(extras.getString("vED"));
+            txtEndTime.setText(extras.getString("vET"));
+            msSlept = extras.getLong("vMS");
+            lblSlept.setText(msToUnits.get(extras.getLong("vMS")));
+            ratingBar.setRating(extras.getFloat("vRT"));
+            txtDream.setText(extras.getString("vDR"));
+        }
     }
         @Override
         public void onTimeSet (TimePicker view,int hourOfDay, int minute){
@@ -218,7 +226,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             String StartDate = txtStartDate.getText().toString();
             String StartTime = txtStartTime.getText().toString();
             String EndDate = txtEndDate.getText().toString();
-            String EndTime = txtStartDate.getText().toString();
+            String EndTime = txtEndTime.getText().toString();
             Float rating = ratingBar.getRating();
             String dream = txtDream.getText().toString();
           /*  java.util.Date StartDate;  // = new SimpleDateFormat("dd/MM/yyyy");

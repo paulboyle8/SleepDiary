@@ -8,12 +8,14 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="550dp">
+            android:layout_height="500dp">
 
             <TableLayout
                 android:id="@+id/tblLayout"
@@ -24,12 +26,22 @@
         </ScrollView>
 
         <TextView
+            android:id="@+id/lblInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tap an entry to edit or delete it, or hold down on your screen to delete all entries"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="18sp" />
+
+        <TextView
             android:id="@+id/lblAvgMS"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
             android:textColor="@android:color/black"
             android:textSize="24sp" />
+
 
         <TextView
             android:id="@+id/lblAvgR"
