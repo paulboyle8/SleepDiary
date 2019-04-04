@@ -12,28 +12,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Button btnAdd = findViewById(R.id.btnAdd);
-        Button btnView = findViewById(R.id.btnView);
-        Button btnPlan = findViewById(R.id.btnPlan);
-        btnAdd.setOnClickListener(new View.OnClickListener() {
+
+        Button btnAdd = findViewById(R.id.btnAdd); //Button to add new entry to diary
+        btnAdd.setOnClickListener(new View.OnClickListener() { //When clicked
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, addEntry.class);  //myIntent.putExtra("key", value); //Optional parameters
-                MainActivity.this.startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, addEntry.class);
+                startActivity(intent); //Start Add Entry activity
             }
         });
+        Button btnView = findViewById(R.id.btnView); //Button to view entries
         btnView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ViewEntries.class);  //myIntent.putExtra("key", value); //Optional parameters
-                MainActivity.this.startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, ViewEntries.class);
+                startActivity(intent); //When clicked, open View Entries activity
             }
         });
+        Button btnPlan = findViewById(R.id.btnPlan); //Button to plan sleep
         btnPlan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, PlanSleep.class);  //myIntent.putExtra("key", value); //Optional parameters
-                MainActivity.this.startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, PlanSleep.class);
+                startActivity(intent); //When clicked, open Plan Sleep activity
             }
         });
     }

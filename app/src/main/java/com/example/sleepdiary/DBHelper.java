@@ -6,14 +6,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.sql.Date;
-import java.sql.Time;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public DBHelper(Context context){
+    public DBHelper(Context context) {
         super(context, "SleepDiaryDB", null, 2);
     }
 
@@ -27,20 +27,19 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
-    public long insertRecord(String SD, String ST, String ED, String ET, long MS, float RT, String DR){
+    public void insertRecord(String SD, String ST, String ED, String ET, long MS, float RT, String DR) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contents = new ContentValues();
-        contents.put(diaryRecord.COLUMN_SD, SD);
+        contents.put(diaryRecord.COLUMN_SD, convertUTC(SD,true));
         contents.put(diaryRecord.COLUMN_ST, ST);
-        contents.put(diaryRecord.COLUMN_ED, ED);
+        contents.put(diaryRecord.COLUMN_ED, convertUTC(ED,true));
         contents.put(diaryRecord.COLUMN_ET, ET);
         contents.put(diaryRecord.COLUMN_MS, MS);
         contents.put(diaryRecord.COLUMN_RT, RT);
         contents.put(diaryRecord.COLUMN_DR, DR);
 
-        long id = db.insert("SleepDiaryDB", null, contents);
+        db.insert("SleepDiaryDB", null, contents);
         db.close();
-        return id;
     }
 
     public List<diaryRecord> getAllRecords() {
@@ -50,8 +49,8 @@ public class DBHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
-        if (cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 diaryRecord record = new diaryRecord();
                 record.StartDate = cursor.getString(cursor.getColumnIndex("StartDate"));
                 record.StartTime = cursor.getString(cursor.getColumnIndex("StartTime"));
@@ -70,15 +69,37 @@ public class DBHelper extends SQLiteOpenHelper {
         return records;
     }
 
-    public boolean recordExists(String SD, String ST, String ED, String ET){
+    public boolean recordExists(String SD, String ST, String ED, String ET) {
+        SD = convertUTC(SD, true);
+        ED = convertUTC(ED, true);
         String query = "SELECT * FROM SleepDiaryDB WHERE StartDate = " + SD + " AND StartTime = \'" + ST + "\' OR EndDate = " + ED + " AND EndTime = \'" + ET + "\'";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-        if(cursor.getCount() == 0){
+        if (cursor.getCount() == 0) {
             cursor.close();
             return false;
         }
         cursor.close();
         return true;
+    }
+
+    public String convertUTC(String date, Boolean toUTC) {
+        java.text.SimpleDateFormat DBdateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
+        java.text.SimpleDateFormat UTCdateFormat = new java.text.SimpleDateFormat("yyyy/MM/dd");
+        if (toUTC) {
+            try {
+                return UTCdateFormat.format(DBdateFormat.parse(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        else{
+            try {
+                return DBdateFormat.format(UTCdateFormat.parse(date));
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
     }
 }

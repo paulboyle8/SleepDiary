@@ -140,13 +140,13 @@ public class alarmService extends Service {
         buildBedPrep = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.drawable.diaryicon)
                 .setContentTitle("Get Ready for Bed")
-                .setContentText("Go to bed by " + bed + " to get " + sleepTime + "sleep")
+                .setContentText("Go to bed by " + bed + " to get " + sleepTime + " sleep")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(false);
         buildBedTime = new NotificationCompat.Builder(this, channelID)
                 .setSmallIcon(R.drawable.diaryicon)
                 .setContentTitle("Time for Bed")
-                .setContentText("Go to sleep now to get " + sleepTime + "sleep")
+                .setContentText("Go to sleep now to get " + sleepTime + " sleep")
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(false);
         Intent openAddEntry = new Intent(this, addEntry.class);
@@ -226,6 +226,7 @@ public class alarmService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 wakeNot();
+                sendBroadcast(new Intent("SwitchOff"));
                 unregisterReceiver(wakeBR);
             }
         };
@@ -248,6 +249,9 @@ public class alarmService extends Service {
             }
         };
         registerReceiver(prepBR, new IntentFilter("BedPrep"));
+
+        //Intent dndIntent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+        //startActivity(dndIntent);
 
         makeNotification("WakeUp", wakeHour, wakeMin, 2);
         makeNotification("BedTime", bedHour, bedMin, 1);
@@ -288,12 +292,14 @@ public class alarmService extends Service {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(action), 0);
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(System.currentTimeMillis());
-        if (hour < Calendar.HOUR_OF_DAY || (hour == Calendar.HOUR_OF_DAY && min < Calendar.MINUTE)){
-            calendar.add(Calendar.DATE, 1);
+        if (hour < calendar.get(Calendar.HOUR_OF_DAY) || (hour == calendar.get(Calendar.HOUR_OF_DAY) && min < calendar.get(Calendar.MINUTE))){
+            calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
         calendar.set(Calendar.HOUR_OF_DAY, hour);
         calendar.set(Calendar.MINUTE, min);
         manager.setExact(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+        //Intent intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+        //startActivity(intent);
         switch (mute){
             case 0 : break;
             case 1 : {

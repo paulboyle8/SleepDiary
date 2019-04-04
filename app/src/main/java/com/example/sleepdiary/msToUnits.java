@@ -2,16 +2,16 @@ package com.example.sleepdiary;
 
 public class msToUnits {
     public static String get(long ms){
-        String result;
+        String result = "";
         ms /= 1000;
         long mins = ms/60;
         if (mins > 60) {
             long hours = mins / 60;
             mins %= 60;
-            result = Long.toString(hours) + " hours " + Long.toString(mins) + " mins";
+            result = Long.toString(hours) + " hours ";
         }
-        else{
-            result = Long.toString(mins) + " mins";
+        if (mins > 0){
+            result += Long.toString(mins) + " mins";
         }
         return result;
     }
