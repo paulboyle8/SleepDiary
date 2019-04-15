@@ -22,9 +22,6 @@ import android.widget.TextView;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 public class ViewEntries extends AppCompatActivity implements GestureDetector.OnGestureListener {
@@ -42,6 +39,15 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
             public void onClick(View v) {
                 onStop();
                 onBackPressed();
+            }
+        });
+        final Button btnHome = findViewById(R.id.btnHome); //Button to return to main activity
+        btnHome.setOnClickListener(new View.OnClickListener() { //When home button pressed
+            @Override
+            public void onClick(View v) {
+                onStop();
+                Intent intent = new Intent(ViewEntries.this, MainActivity.class);
+                startActivity(intent); //Start main activity
             }
         });
     }
@@ -201,9 +207,7 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
         intent.putExtra("vRT", ViewEntry.Rating);
         intent.putExtra("vDR", ViewEntry.Dream);
         startActivity(intent);
-        if (action == 'E') {
-            onStop();
-        }
+        onStop();
     }
 
     protected void onStart() {

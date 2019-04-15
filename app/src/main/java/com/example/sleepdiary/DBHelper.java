@@ -7,9 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 public class DBHelper extends SQLiteOpenHelper {
 
@@ -19,7 +16,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(diaryRecord.CREATE_TABLE);
+        db.execSQL(diaryRecord.CREATE_TABLE); //When created, create new table if it does not already exist
     }
 
     @Override
@@ -27,9 +24,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
     }
 
+    //Add new record to database
     public void insertRecord(String SD, String ST, String ED, String ET, long MS, float RT, String DR) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contents = new ContentValues();
+        SQLiteDatabase db = this.getWritableDatabase(); //Open database
+        ContentValues contents = new ContentValues(); //Add record values to content
         contents.put(diaryRecord.COLUMN_SD, convertUTC(SD,true));
         contents.put(diaryRecord.COLUMN_ST, ST);
         contents.put(diaryRecord.COLUMN_ED, convertUTC(ED,true));
@@ -38,64 +36,39 @@ public class DBHelper extends SQLiteOpenHelper {
         contents.put(diaryRecord.COLUMN_RT, RT);
         contents.put(diaryRecord.COLUMN_DR, DR);
 
-        db.insert("SleepDiaryDB", null, contents);
-        db.close();
+        db.insert("SleepDiaryDB", null, contents); //Add content to record of database
+        db.close(); //Close database
     }
 
-    public List<diaryRecord> getAllRecords() {
-        List<diaryRecord> records = new ArrayList<>();
-        String query = "SELECT * FROM SleepDiaryDB ORDER BY StartDate DESC, StartTime DESC";
-
-        SQLiteDatabase db = this.getWritableDatabase();
-        Cursor cursor = db.rawQuery(query, null);
-
-        if (cursor.moveToFirst()) {
-            do {
-                diaryRecord record = new diaryRecord();
-                record.StartDate = cursor.getString(cursor.getColumnIndex("StartDate"));
-                record.StartTime = cursor.getString(cursor.getColumnIndex("StartTime"));
-                record.EndDate = cursor.getString(cursor.getColumnIndex("EndDate"));
-                record.EndTime = cursor.getString(cursor.getColumnIndex("EndTime"));
-                record.MsSlept = cursor.getLong(cursor.getColumnIndex("MsSlept"));
-                record.Rating = cursor.getFloat(cursor.getColumnIndex("Rating"));
-                record.Dream = cursor.getString(cursor.getColumnIndex("Dream"));
-
-                records.add(record);
-            }
-            while (cursor.moveToNext());
-        }
-
-        db.close();
-        return records;
-    }
-
+    //Find if record is a duplicate of an existing record
     public boolean recordExists(String SD, String ST, String ED, String ET) {
-        SD = convertUTC(SD, true);
+        SD = convertUTC(SD, true); //Convert string UK date format to UTC format, i.e. year-month-day
         ED = convertUTC(ED, true);
-        String query = "SELECT * FROM SleepDiaryDB WHERE StartDate = " + SD + " AND StartTime = \'" + ST + "\' OR EndDate = " + ED + " AND EndTime = \'" + ET + "\'";
+        //Check for duplication
+        String query = "SELECT * FROM SleepDiaryDB WHERE StartDate = \'" + SD + "\' AND StartTime = \'" + ST + "\' OR EndDate = \'" + ED + "\' AND EndTime = \'" + ET + "\'";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-        if (cursor.getCount() == 0) {
+        if (cursor.getCount() == 0) { //If no duplicates found
             cursor.close();
-            return false;
+            return false; //Return false
         }
-        cursor.close();
-        return true;
+        cursor.close(); //Else, if duplicate found
+        return true; //Return true
     }
 
     public String convertUTC(String date, Boolean toUTC) {
-        java.text.SimpleDateFormat DBdateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy");
-        java.text.SimpleDateFormat UTCdateFormat = new java.text.SimpleDateFormat("yyyy/MM/dd");
-        if (toUTC) {
+        java.text.SimpleDateFormat DBdateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy"); //Common date format for displaying date
+        java.text.SimpleDateFormat UTCdateFormat = new java.text.SimpleDateFormat("yyyy/MM/dd"); //UTC format for sorting dates
+        if (toUTC) { //If converting date to UTC
             try {
-                return UTCdateFormat.format(DBdateFormat.parse(date));
+                return UTCdateFormat.format(DBdateFormat.parse(date)); //Parse string to date, then format to UTC date as string
             } catch (ParseException e) {
                 e.printStackTrace();
             }
         }
         else{
             try {
-                return DBdateFormat.format(UTCdateFormat.parse(date));
+                return DBdateFormat.format(UTCdateFormat.parse(date)); //Parse string to date, then format to common date as string
             } catch (ParseException e) {
                 e.printStackTrace();
             }

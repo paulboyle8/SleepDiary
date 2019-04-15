@@ -12,8 +12,10 @@
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.701">
 
         <TableLayout
             android:layout_width="match_parent"
@@ -122,18 +124,12 @@
             android:numStars="5"
             android:stepSize=".5" />
 
-        <TextView
-            android:id="@+id/lblDream"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Enter any dream notes (optional):"
-            android:textSize="18sp" />
-
         <EditText
             android:id="@+id/txtDream"
             android:layout_width="match_parent"
             android:layout_height="130dp"
             android:ems="10"
+            android:hint="Enter any dream notes (optional):"
             android:inputType="textMultiLine" />
 
         <Button
@@ -142,13 +138,30 @@
             android:layout_height="wrap_content"
             android:text="Submit Sleep Data" />
 
-        <Button
-            android:id="@+id/btnBack"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Back"
-            tools:layout_editor_absoluteX="76dp"
-            tools:layout_editor_absoluteY="652dp" />
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnBack"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Back"
+                tools:layout_editor_absoluteX="76dp"
+                tools:layout_editor_absoluteY="652dp" />
+
+            <Button
+                android:id="@+id/btnHome"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Home"
+                tools:layout_editor_absoluteX="76dp"
+                tools:layout_editor_absoluteY="652dp" />
+        </LinearLayout>
 
     </LinearLayout>
 

@@ -1,14 +1,15 @@
 package com.example.sleepdiary;
 
-import android.app.NotificationManager;
+import android.app.Dialog;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.icu.util.Calendar;
-import android.support.v4.app.NotificationCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -125,32 +126,34 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {//When submit button pressed
-                SharedPreferences sharedTimes = getSharedPreferences("times", 0);
-                SharedPreferences.Editor spEditor = sharedTimes.edit();
-                //Add times to shared preferences
-                spEditor.putString("ST", txtBed.getText().toString()).apply();
-                spEditor.putString("ET", txtWake.getText().toString()).apply();
-                long msSlept = msToUnits.getMSfromUnits(sbH.getProgress(), (sbM.getProgress()) * 5); //get milliseconds of sleep time
-                int sSlept = (int) (msSlept / 1000); //find seconds by milliseconds/1000
-                spEditor.putLong("MS", msSlept).apply();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                Calendar calendar = Calendar.getInstance(); //get current date
-                Date SD = calendar.getTime();
-                calendar.add(Calendar.SECOND, sSlept); //get date from current time plus time to sleep
-                Date ED = calendar.getTime();
-                String strSD = dateFormat.format(SD);
-                String strED = dateFormat.format(ED);
-                spEditor.putString("SD", strSD).apply();
-                spEditor.putString("ED", strED).apply();
+                if (areFieldsFull()) {
+                    SharedPreferences sharedTimes = getSharedPreferences("times", 0);
+                    SharedPreferences.Editor spEditor = sharedTimes.edit();
+                    //Add times to shared preferences
+                    spEditor.putString("ST", txtBed.getText().toString()).apply();
+                    spEditor.putString("ET", txtWake.getText().toString()).apply();
+                    long msSlept = msToUnits.getMSfromUnits(sbH.getProgress(), (sbM.getProgress()) * 5); //get milliseconds of sleep time
+                    int sSlept = (int) (msSlept / 1000); //find seconds by milliseconds/1000
+                    spEditor.putLong("MS", msSlept).apply();
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    Calendar calendar = Calendar.getInstance(); //get current date
+                    Date SD = calendar.getTime();
+                    calendar.add(Calendar.SECOND, sSlept); //get date from current time plus time to sleep
+                    Date ED = calendar.getTime();
+                    String strSD = dateFormat.format(SD);
+                    String strED = dateFormat.format(ED);
+                    spEditor.putString("SD", strSD).apply();
+                    spEditor.putString("ED", strED).apply();
 
-                //Add intent extras to open with Alarm Service class to create notification
-                Intent intent_service = new Intent(getApplicationContext(), alarmService.class);
-                intent_service.putExtra("bed", txtBed.getText()); //Bed time
-                intent_service.putExtra("wake", txtWake.getText()); //Wake time
-                intent_service.putExtra("bedPrep", bedPrep); //30 mins before bed time
-                intent_service.putExtra("sleepTime", lblHM.getText()); //Time to sleep
-                intent_service.putExtra("boolReminders", swOn.isChecked()); //Bool for if reminders are turned on
-                startService(intent_service);
+                    //Add intent extras to open with Alarm Service class to create notification
+                    Intent intent_service = new Intent(getApplicationContext(), alarmService.class);
+                    intent_service.putExtra("bed", txtBed.getText()); //Bed time
+                    intent_service.putExtra("wake", txtWake.getText()); //Wake time
+                    intent_service.putExtra("bedPrep", bedPrep); //30 mins before bed time
+                    intent_service.putExtra("sleepTime", lblHM.getText()); //Time to sleep
+                    intent_service.putExtra("boolReminders", swOn.isChecked()); //Bool for if reminders are turned on
+                    startService(intent_service);
+                }
             }
         });
         swOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {//If reminders on/off switch changed
@@ -264,5 +267,25 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         planEditor.putInt("sbHours", sbH.getProgress()).apply();
         planEditor.putInt("sbMins", sbM.getProgress()).apply();
         planEditor.putString("bedPrep", bedPrep).apply();
+    }
+
+    private boolean areFieldsFull(){
+        if (txtWake.getText() == "" || txtBed.getText() == "" ){
+            AlertDialog.Builder incomplete = new AlertDialog.Builder(this); //display error message
+            incomplete.setTitle("Error")
+                    .setMessage("Please fill in all fields before submitting")
+                    .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            return; //Button to exit dialog
+                        }
+                    });
+            Dialog incompleteDialog = incomplete.create();
+            incompleteDialog.show();
+            return false;
+        }
+        else{
+            return true;
+        }
     }
 }

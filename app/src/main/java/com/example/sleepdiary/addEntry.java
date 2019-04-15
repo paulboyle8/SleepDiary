@@ -23,7 +23,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.text.ParseException;
-import java.util.Date;
 
 public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTimeSetListener, DatePickerDialog.OnDateSetListener {
 
@@ -122,6 +121,18 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                             });
                     Dialog incompleteDialog = incomplete.create();
                     incompleteDialog.show(); //Display
+                } else if (!startFirst(txtStartDate.getText().toString(), txtStartTime.getText().toString(), txtEndDate.getText().toString(), txtEndTime.getText().toString())) {
+                    AlertDialog.Builder incomplete = new AlertDialog.Builder(addEntry.this); //display error message
+                    incomplete.setTitle("Error")
+                            .setMessage("Bedtime cannot be before start time")
+                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    return; //Button to exit dialog
+                                }
+                            });
+                    Dialog incompleteDialog = incomplete.create();
+                    incompleteDialog.show(); //Display
                 } else if (!editExisting) {//If creating new record rather than editing old one
                     //if entry is a duplicate to already existing entry
                     if (db.recordExists(txtStartDate.getText().toString(), txtStartTime.getText().toString(), txtEndDate.getText().toString(), txtEndTime.getText().toString())) {
@@ -142,7 +153,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 } else if (editExisting) { //If editing existing record
                     final DBHelper dbHelper = new DBHelper(addEntry.this); //Open database
                     final SQLiteDatabase db = dbHelper.getReadableDatabase();
-                    final String[] whereArgs = new String[]{dbHelper.convertUTC(oSD,true), oST}; //Arguments for query - start date and time
+                    final String[] whereArgs = new String[]{dbHelper.convertUTC(oSD, true), oST}; //Arguments for query - start date and time
                     db.delete("SleepDiaryDB", "StartDate = ? AND StartTime = ?", whereArgs); //Delete existing record
                     InsertRecords(); //Enter new record
                 }
@@ -153,6 +164,14 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             @Override
             public void onClick(View v) {
                 onBackPressed(); //Go back to previous activity
+            }
+        });
+        final Button btnHome = findViewById(R.id.btnHome); //Button to return to main activity
+        btnHome.setOnClickListener(new View.OnClickListener() { //When home button pressed
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(addEntry.this, MainActivity.class);
+                startActivity(intent); //Start main activity
             }
         });
         final TextView lblSlept = findViewById(R.id.lblSlept); //Text view to display time slept for
@@ -185,8 +204,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 case 'V': //Hide buttons or instructions to enter information
                     TextView lblRate = findViewById(R.id.lblRate);
                     lblRate.setVisibility(View.GONE);
-                    TextView lblDream = findViewById(R.id.lblDream);
-                    lblDream.setVisibility(View.GONE);
+                    txtDream.setHint("");
                     btnSubmit.setVisibility(View.GONE);
                     //Make TextViews and other widgets non-clickable
                     txtStartDate.setClickable(false);
@@ -203,8 +221,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             //Show widgets and make them usable
             TextView lblRate = findViewById(R.id.lblRate);
             lblRate.setVisibility(View.VISIBLE);
-            TextView lblDream = findViewById(R.id.lblDream);
-            lblDream.setVisibility(View.VISIBLE);
+            txtDream.setHint("Enter any dream notes (optional):");
             btnSubmit.setVisibility(View.VISIBLE);
             txtStartDate.setClickable(true);
             txtStartTime.setClickable(true);
@@ -244,7 +261,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
         } else {
             txtDate = findViewById(R.id.txtEndDate);
         }
-        txtDate.setText(convNum(dayOfMonth) + "/" + convNum(month+1) + "/" + year);
+        txtDate.setText(convNum(dayOfMonth) + "/" + convNum(month + 1) + "/" + year);
         calcDiff();
     }
 
@@ -279,24 +296,34 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
         TextView txtED = findViewById(R.id.txtEndDate);
         TextView lblSlept = findViewById(R.id.lblSlept);
         if (txtED.getText() != "" && txtET.getText() != "" && txtSD.getText() != "" && txtST.getText() != "") {//if all fields are not empty
-            String startStr = txtSD.getText().toString() + " " + txtST.getText().toString(); //Concatenate start date and time
-            String endStr = txtED.getText().toString() + " " + txtET.getText().toString(); ////Concatenate end date and time
             java.util.Date startDT, endDT; //Initialise date variables for whole date
-            SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm"); //Create date format for parsing strings
-            try {
-                startDT = format.parse(startStr); //Parse start datetime string to date
-            } catch (ParseException e) {
-                startDT = null;
-                e.printStackTrace(); //If failed, record error
-            }
-            try {
-                endDT = format.parse(endStr);//Parse end datetime string to date
-            } catch (ParseException e) {
-                endDT = null;
-                e.printStackTrace(); //If failed, record error
-            }
+            startDT = getMS(txtSD.getText().toString(), txtST.getText().toString()); //Get start datetime
+            endDT = getMS(txtED.getText().toString(), txtET.getText().toString()); //Get end datetime
             msSlept = Math.abs(endDT.getTime() - startDT.getTime()); //find milliseconds between two datetimes
             lblSlept.setText("Sleep time: " + msToUnits.get(msSlept)); //write to TextView
         }
+    }
+
+    private Boolean startFirst(String SD, String ST, String ED, String ET) {
+        java.util.Date startDT, endDT; //Initialise date variables for whole date
+        startDT = getMS(SD, ST); //Get start datetime
+        endDT = getMS(ED, ET); //Get end datetime
+        if (startDT.getTime() < endDT.getTime()) {
+            return true; //If start time is before bed time, return true
+        }
+        return false; //Else, return false
+    }
+
+    private java.util.Date getMS(String strDate, String strTime) {//Calculate difference between start and end times
+        String strDT = strDate + " " + strTime; //Concatenate  date and time
+        java.util.Date DT; //Initialise date variables for whole date
+        SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy HH:mm"); //Create date format for parsing strings
+        try {
+            DT = format.parse(strDT); //Parse datetime string to date
+        } catch (ParseException e) {
+            DT = null;
+            e.printStackTrace(); //If failed, record error
+        }
+        return DT;
     }
 }

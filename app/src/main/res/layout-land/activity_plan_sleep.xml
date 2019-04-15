@@ -7,7 +7,7 @@
     tools:context=".PlanSleep">
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/linBtns"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_horizontal"
@@ -96,9 +96,9 @@
             android:layout_weight="1"
             android:textAlignment="center"
             android:textSize="24sp"
-            app:layout_constraintEnd_toStartOf="@+id/linearLayout"
-            app:layout_constraintStart_toEndOf="@+id/linearLayout"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+            app:layout_constraintEnd_toStartOf="@+id/linBtns"
+            app:layout_constraintStart_toEndOf="@+id/linBtns"
+            app:layout_constraintTop_toBottomOf="@+id/linBtns" />
 
         <LinearLayout
             android:layout_width="match_parent"
