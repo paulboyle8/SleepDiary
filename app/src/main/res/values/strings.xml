@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">mySleepDiary</string>
+    <string name="went_to_sleep">Went to sleep:</string>
+    <string name="dream_notes">Enter any dream notes (optional):</string>
+    <string name="sleep_data">Submit Sleep Data</string>
+    <string name="enter_date">Enter date</string>
+    <string name="plan">Plan Your Sleep</string>
+    <string name="add">Add Entry</string>
+    <string name="view">View Entries</string>
+    <string name="view_instruct">Tap an entry to edit or delete it, or hold down on your screen to delete all entries</string>
+    <string name="reminders">Sleep Reminders</string>
+    <string name="off">Off</string>
+    <string name="on">On</string>
+    <string name="hours">Hours:</string>
+    <string name="mins">Mins:</string>
+    <string name="wake_time">Wake time:</string>
+    <string name="bed_time">Bed time:</string>
+    <string name="submit">Submit</string>
+    <string name="title">mySleepDiary</string>
+    <string name="back">Back</string>
+    <string name="home">Home</string>
+    <string name="submit_sleep_data">Submit Sleep Data</string>
+    <string name="woke_up">Woke up:</string>
+    <string name="enter_time">Enter time</string>
+    <string name="sleep_time">Sleep time:</string>
+    <string name="how_would">How would you rate your sleep?</string>
+    <string name="error">Error</string>
+    <string name="okay">Okay</string>
+    <string name="set_end_time">Set end time</string>
+    <string name="set_end_date">Set end date</string>
+    <string name="set_start_time">Set start time</string>
+    <string name="redstar"><![CDATA[<font color=red>*</font>]]></string>
 </resources>

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".PlanSleep">
 
     <LinearLayout
@@ -23,9 +24,9 @@
             android:layout_weight="1"
             android:showText="true"
             android:splitTrack="false"
-            android:text="Sleep Reminders"
-            android:textOff="Off"
-            android:textOn="On"
+            android:text="@string/reminders"
+            android:textOff="@string/off"
+            android:textOn="@string/on"
             tools:checked="false" />
 
         <LinearLayout
@@ -37,7 +38,7 @@
                 android:id="@+id/lblH"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hours:"
+                android:text="@string/hours"
                 android:textSize="24sp" />
 
             <SeekBar
@@ -64,7 +65,7 @@
                 android:id="@+id/lblM"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mins:"
+                android:text="@string/mins"
                 android:textSize="24sp" />
 
             <SeekBar
@@ -106,14 +107,14 @@
                 android:id="@+id/lblS"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Bed time:   "
+                android:text="@string/bed_time"
                 android:textSize="24sp"
                 tools:layout_editor_absoluteX="112dp"
                 tools:layout_editor_absoluteY="230dp" />
 
             <TextView
                 android:id="@+id/txtBed"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textAlignment="center"
@@ -130,14 +131,14 @@
                 android:id="@+id/lblE"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wake time:"
+                android:text="@string/wake_time"
                 android:textSize="24sp"
                 tools:layout_editor_absoluteX="112dp"
                 tools:layout_editor_absoluteY="230dp" />
 
             <TextView
                 android:id="@+id/txtWake"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:textAlignment="center"
@@ -145,26 +146,24 @@
 
         </LinearLayout>
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back"
+            android:text="@string/back"
             android:textAlignment="center"
             tools:layout_editor_absoluteX="161dp"
             tools:layout_editor_absoluteY="231dp" />
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnSubmit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Submit"
+            android:text="@string/submit"
             android:textAlignment="center"
             tools:layout_editor_absoluteX="161dp"
             tools:layout_editor_absoluteY="231dp" />
 
     </LinearLayout>
-
-
 
 </android.support.constraint.ConstraintLayout>

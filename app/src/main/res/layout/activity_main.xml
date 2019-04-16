@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".MainActivity">
 
     <LinearLayout
@@ -34,7 +35,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
-            android:text="mySleepDiary"
+            android:text="@string/title"
             android:textAlignment="center"
             android:textSize="40sp" />
 
@@ -42,23 +43,23 @@
             android:layout_width="match_parent"
             android:layout_height="50dp" />
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnPlan"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Plan Your Sleep" />
+            android:text="@string/plan" />
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnAdd"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add Entry" />
+            android:text="@string/add" />
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="View Entries" />
+            android:text="@string/view" />
 
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

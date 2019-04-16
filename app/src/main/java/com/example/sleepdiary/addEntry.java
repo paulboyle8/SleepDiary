@@ -39,9 +39,9 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
         setContentView(R.layout.activity_add_entry);
         editExisting = false; //initialise as entry being created, not edited from existing record
         TextView lblStart = findViewById(R.id.lblStart);
-        lblStart.append(Html.fromHtml("<font color=red>*</font>")); //add red asterisk to TextView to show field is mandatory
+        lblStart.append(Html.fromHtml(getString(R.string.redstar))); //add red asterisk to TextView to show field is mandatory
         TextView lblEnd = findViewById(R.id.lblEnd);
-        lblEnd.append(Html.fromHtml("<font color=red>*</font>"));
+        lblEnd.append(Html.fromHtml(getString(R.string.redstar)));
 
         db = new DBHelper(this);
         final TextView txtStartTime = findViewById(R.id.txtStartTime); //TextView to enter start time
@@ -52,7 +52,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 SharedPreferences spTimes = getSharedPreferences("times", 0); //Open shared preferences
                 int hour = Integer.parseInt(spTimes.getString("ST", "23").substring(0, 2)); //Set default time as last time entered
                 int min = Integer.parseInt(spTimes.getString("ST", "23:00").substring(3, 5));
-                String title = "Set start time"; //Set title for dialog
+                String title = getString(R.string.set_start_time); //Set title for dialog
                 TimePickerDialog timePickerDialog = new TimePickerDialog(addEntry.this, addEntry.this, hour, min, DateFormat.is24HourFormat(getApplicationContext())); //Initialise time picker
                 timePickerDialog.setTitle(title); //Set title
                 timePickerDialog.show(); //Display time picker
@@ -66,7 +66,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 SharedPreferences spTimes = getSharedPreferences("times", 0);
                 int hour = Integer.parseInt(spTimes.getString("ET", "07").substring(0, 2));
                 int min = Integer.parseInt(spTimes.getString("ET", "07:00").substring(3, 5));
-                String title = "Set end time";
+                String title = getString(R.string.set_end_time);
                 TimePickerDialog timePickerDialog = new TimePickerDialog(addEntry.this, addEntry.this, hour, min, DateFormat.is24HourFormat(getApplicationContext())); //set 24 hour bool
                 timePickerDialog.setTitle(title);
                 timePickerDialog.show();
@@ -82,7 +82,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 int year = c.get(Calendar.YEAR);
                 int month = c.get(Calendar.MONTH);
                 int day = c.get(Calendar.DAY_OF_MONTH);
-                String title = "Set end date"; //Set title
+                String title = getString(R.string.set_end_date); //Set title
                 DatePickerDialog datePickerDialog = new DatePickerDialog(addEntry.this, addEntry.this, year, month, day); //Initialise date picker with current date as default
                 datePickerDialog.setTitle(title);
                 datePickerDialog.show();
@@ -111,7 +111,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 //if any mandatory fields have not been entered
                 if (txtEndDate.getText() == "" || txtStartDate.getText() == "" || txtStartTime.getText() == "" || txtEndTime.getText() == "" || txtEndDate.getText() == "") {
                     AlertDialog.Builder incomplete = new AlertDialog.Builder(addEntry.this); //display error message
-                    incomplete.setTitle("Error")
+                    incomplete.setTitle(R.string.error)
                             .setMessage("Please complete all mandatory fields before submitting")
                             .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
                                 @Override
@@ -123,9 +123,9 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                     incompleteDialog.show(); //Display
                 } else if (!startFirst(txtStartDate.getText().toString(), txtStartTime.getText().toString(), txtEndDate.getText().toString(), txtEndTime.getText().toString())) {
                     AlertDialog.Builder incomplete = new AlertDialog.Builder(addEntry.this); //display error message
-                    incomplete.setTitle("Error")
+                    incomplete.setTitle(R.string.error)
                             .setMessage("Bedtime cannot be before start time")
-                            .setPositiveButton("Okay", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     return; //Button to exit dialog

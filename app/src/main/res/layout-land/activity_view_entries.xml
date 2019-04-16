@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".ViewEntries">
 
     <ScrollView
@@ -29,7 +30,7 @@
         android:id="@+id/lblInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tap an entry to edit or delete it, or hold down on your screen to delete all entries"
+        android:text="@string/view_instruct"
         android:textAlignment="center"
         android:textColor="@android:color/black"
         android:textSize="18sp"
@@ -86,19 +87,19 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent">
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnBack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Back" />
+            android:text="@string/back" />
 
-        <Button
+        <Button style="@style/sdButton"
             android:id="@+id/btnHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Home"
+            android:text="@string/home"
             tools:layout_editor_absoluteX="76dp"
             tools:layout_editor_absoluteY="652dp" />
         <!--app:layout_constraintBottom_toBottomOf="parent"

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorBackground"
     tools:context=".addEntry">
 
     <LinearLayout
@@ -29,7 +30,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="Went to sleep:"
+                    android:text="@string/went_to_sleep"
                     android:textAlignment="center"
                     android:textSize="24sp" />
 
@@ -38,7 +39,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Enter date"
+                    android:hint="@string/enter_date"
                     android:textAlignment="center"
                     android:textSize="24sp" />
 
@@ -48,7 +49,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:hint="Enter time"
+                    android:hint="@string/enter_time"
                     android:textAlignment="center"
                     android:textSize="24sp"
                     android:visibility="visible" />
@@ -65,7 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="2"
-                    android:text="Woke up:"
+                    android:text="@string/woke_up"
                     android:textAlignment="center"
                     android:textSize="24sp" />
 
@@ -74,7 +75,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Enter date"
+                    android:hint="@string/enter_date"
                     android:lineSpacingExtra="14sp"
                     android:textAlignment="center"
                     android:textSize="24sp"
@@ -85,17 +86,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:hint="Enter time"
+                    android:hint="@string/enter_time"
                     android:textAlignment="center"
                     android:textSize="24sp"
                     android:visibility="visible" />
-
-            </TableRow>
-
-            <TableRow
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center">
 
             </TableRow>
         </TableLayout>
@@ -107,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:ems="10"
-            android:text="Sleep time: "
+            android:text="@string/sleep_time"
             android:textAlignment="center"
             android:textSize="24sp"
             tools:layout_editor_absoluteX="8dp"
@@ -123,7 +117,7 @@
                 android:id="@+id/lblRate"
                 android:layout_width="362dp"
                 android:layout_height="wrap_content"
-                android:text="How would you rate your sleep?"
+                android:text="@string/how_would"
                 android:textSize="24sp" />
 
             <RatingBar
@@ -141,7 +135,7 @@
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:ems="10"
-            android:hint="Enter any dream notes (optional)"
+            android:hint="@string/dream_notes"
             android:inputType="textMultiLine" />
 
         <LinearLayout
@@ -150,26 +144,26 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
+            <Button style="@style/sdButton"
                 android:id="@+id/btnSubmit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Submit Sleep Data" />
+                android:text="@string/submit_sleep_data" />
 
-            <Button
+            <Button style="@style/sdButton"
                 android:id="@+id/btnBack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="Back" />
+                android:text="@string/back" />
 
-            <Button
+            <Button style="@style/sdButton"
                 android:id="@+id/btnHome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="2"
-                android:text="Home" />
+                android:text="@string/home" />
         </LinearLayout>
 
     </LinearLayout>
