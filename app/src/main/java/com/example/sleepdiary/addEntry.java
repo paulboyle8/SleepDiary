@@ -150,7 +150,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                     } else {
                         InsertRecords(); //Else, insert entry into database
                     }
-                } else if (editExisting) { //If editing existing record
+                } else { //If editing existing record
                     final DBHelper dbHelper = new DBHelper(addEntry.this); //Open database
                     final SQLiteDatabase db = dbHelper.getReadableDatabase();
                     final String[] whereArgs = new String[]{dbHelper.convertUTC(oSD, true), oST}; //Arguments for query - start date and time
@@ -324,6 +324,6 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             DT = null;
             e.printStackTrace(); //If failed, record error
         }
-        return DT;
+        return DT; //Return date time
     }
 }

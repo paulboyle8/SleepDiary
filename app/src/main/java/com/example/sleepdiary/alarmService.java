@@ -167,29 +167,30 @@ public class alarmService extends Service {
         if (hour < calendar.get(Calendar.HOUR_OF_DAY) || (hour == calendar.get(Calendar.HOUR_OF_DAY) && min < calendar.get(Calendar.MINUTE))){
             calendar.add(Calendar.DAY_OF_YEAR, 1);
         }
-        calendar.set(Calendar.HOUR_OF_DAY, hour);
-        calendar.set(Calendar.MINUTE, min);
-        manager.setExact(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+        calendar.set(Calendar.HOUR_OF_DAY, hour); //Set calender hour to parameter hour
+        calendar.set(Calendar.MINUTE, min); //Set calender minute to parameter minute
+        assert manager != null; //Assert alarm manager is not null
+        manager.setExact(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent); //Use alarm manager to create broadcast at specified time
         switch (mute){
-            case 0 : break;
-            case 1 : {
-                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                assert audioManager != null;
-                SharedPreferences sharedVols = getSharedPreferences("volumes", 0);
-                SharedPreferences.Editor volEditor = sharedVols.edit();
-                volEditor.putInt("Notifs", audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)).apply();
-                volEditor.putInt("Music", audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).apply();
+            case 0 : break; //If 30 min reminder being made, ignore
+            case 1 : { //If bed time notification
+                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Start audio manager
+                assert audioManager != null; //Assert audioManager variable is not null
+                SharedPreferences sharedVols = getSharedPreferences("volumes", 0); //Get shared preferences for volumes
+                SharedPreferences.Editor volEditor = sharedVols.edit(); //Edit shared preferences
+                volEditor.putInt("Notifs", audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)).apply(); //Put current notification volume in shared preferences
+                volEditor.putInt("Music", audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).apply(); //Put current music volume in shared preferences
 
-                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0); //Mute notifications
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0); //Mute music
                 break;
             }
-            case 2 : {
-                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+            case 2 : { //If wake up notification
+                AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Get audio manager
                 assert audioManager != null;
-                SharedPreferences sharedVols = getSharedPreferences("volumes", 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, sharedVols.getInt("Notifs",0), 0);
-                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sharedVols.getInt("Music",0), 0);
+                SharedPreferences sharedVols = getSharedPreferences("volumes", 0); //Get volumes shared preferences
+                audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, sharedVols.getInt("Notifs",0), 0); //Set notification volume to previous volume from shared preferences
+                audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sharedVols.getInt("Music",0), 0); //Set music volume to previous volume from shared preferences
                 break;
             }
         }

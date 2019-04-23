@@ -10,7 +10,7 @@ import java.text.ParseException;
 
 public class DBHelper extends SQLiteOpenHelper {
 
-    public DBHelper(Context context) {
+    DBHelper(Context context) {
         super(context, "SleepDiaryDB", null, 2);
     }
 
@@ -25,23 +25,23 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     //Add new record to database
-    public void insertRecord(String SD, String ST, String ED, String ET, long MS, float RT, String DR) {
+    void insertRecord(String SD, String ST, String ED, String ET, long MS, float RT, String DR) {
         SQLiteDatabase db = this.getWritableDatabase(); //Open database
         ContentValues contents = new ContentValues(); //Add record values to content
-        contents.put(diaryRecord.COLUMN_SD, convertUTC(SD,true));
-        contents.put(diaryRecord.COLUMN_ST, ST);
-        contents.put(diaryRecord.COLUMN_ED, convertUTC(ED,true));
-        contents.put(diaryRecord.COLUMN_ET, ET);
-        contents.put(diaryRecord.COLUMN_MS, MS);
-        contents.put(diaryRecord.COLUMN_RT, RT);
-        contents.put(diaryRecord.COLUMN_DR, DR);
+        contents.put(diaryRecord.COLUMN_SD, convertUTC(SD,true)); //Start date
+        contents.put(diaryRecord.COLUMN_ST, ST); //Start time
+        contents.put(diaryRecord.COLUMN_ED, convertUTC(ED,true)); //End date
+        contents.put(diaryRecord.COLUMN_ET, ET); //End time
+        contents.put(diaryRecord.COLUMN_MS, MS); //Time slept in milliseconds
+        contents.put(diaryRecord.COLUMN_RT, RT); //Rating out of 5
+        contents.put(diaryRecord.COLUMN_DR, DR); //Dream notes
 
         db.insert("SleepDiaryDB", null, contents); //Add content to record of database
         db.close(); //Close database
     }
 
     //Find if record is a duplicate of an existing record
-    public boolean recordExists(String SD, String ST, String ED, String ET) {
+    boolean recordExists(String SD, String ST, String ED, String ET) {
         SD = convertUTC(SD, true); //Convert string UK date format to UTC format, i.e. year-month-day
         ED = convertUTC(ED, true);
         //Check for duplication
@@ -56,7 +56,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return true; //Return true
     }
 
-    public String convertUTC(String date, Boolean toUTC) {
+    String convertUTC(String date, Boolean toUTC) {
         java.text.SimpleDateFormat DBdateFormat = new java.text.SimpleDateFormat("dd/MM/yyyy"); //Common date format for displaying date
         java.text.SimpleDateFormat UTCdateFormat = new java.text.SimpleDateFormat("yyyy/MM/dd"); //UTC format for sorting dates
         if (toUTC) { //If converting date to UTC

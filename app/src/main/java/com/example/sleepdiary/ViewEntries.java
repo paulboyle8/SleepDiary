@@ -90,14 +90,20 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
             if (crsr != null && crsr.moveToFirst()) {//For each result record
                 try {
                     do {
+                        //Get values to display from Cursor
                         final String StartDate = crsr.getString(crsr.getColumnIndex("StartDate"));
                         final String StartTime = crsr.getString(crsr.getColumnIndex("StartTime"));
                         final long MsSlept = crsr.getLong(crsr.getColumnIndex("MsSlept"));
                         final float Rating = crsr.getFloat(crsr.getColumnIndex("Rating"));
                         final String finalStartDate = dbHelper.convertUTC(StartDate, false); //Convert date to common format as final variable
-                        new Thread(new Runnable() { //New concurrent thread
+
+                        /*This application no longer uses multithreading, however as part of this academic exercise
+                        I have included the code I previously used to write to the table using multithreading as comments*/
+
+                        /*new Thread(new Runnable() { //New concurrent thread
                             @Override
-                            public void run() {
+                            public void run() {*/
+
                                 final TableRow row = new TableRow(ViewEntries.this); //Make and configure table row
                                 row.setGravity(Gravity.CENTER);
                                 row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -128,8 +134,9 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
                                     row.addView(lbl);
                                 }
                                 tblLayout.addView(row); //Add row to table
-                            }
-                        }).start(); //start thread
+
+                            /*}
+                        }).start(); //start thread*/
                     }
                     while (crsr.moveToNext());
                     db.setTransactionSuccessful();
@@ -140,8 +147,8 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            db.endTransaction();
-            db.close();
+            db.endTransaction(); //End database transaction
+            db.close(); //Close database connection
         }
     }
 
@@ -157,60 +164,63 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
             case "Delete": //If user wants to delete record
                 final AlertDialog.Builder deleteEntry = new AlertDialog.Builder(ViewEntries.this);
                 deleteEntry.setTitle("Sleep Diary Record")
-                        .setMessage("Are you sure you want to delete this record?")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        .setMessage("Are you sure you want to delete this record?") //Check if user wants to delete record
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() { //If user chooses yes
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
                                 final DBHelper dbHelper = new DBHelper(ViewEntries.this);
                                 final SQLiteDatabase db = dbHelper.getReadableDatabase();
-                                db.delete("SleepDiaryDB", "StartDate = ? AND StartTime = ?", whereArgs);
+                                db.delete("SleepDiaryDB", "StartDate = ? AND StartTime = ?", whereArgs); //Delete record specified with clause
                                 TableLayout tblLayout = findViewById(R.id.tblLayout);
-                                tblLayout.removeAllViews();
-                                display();
+                                tblLayout.removeAllViews(); //Clear table
+                                display();//Refresh table
                                 return;
                             }
                         })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() { //If user chooses no
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                return;
+                                return; //Cancel
                             }
                         });
-                Dialog choose = deleteEntry.create();
-                choose.show();
+                Dialog choose = deleteEntry.create(); //Create dialog
+                choose.show(); //Show dialog
                 break;
         }
     }
 
-    private void viewOrEdit(Character action, String[] whereArgs) {
-        Intent intent = new Intent(ViewEntries.this, addEntry.class);
-        intent.putExtra("Action", action);
-        intent.putExtra("whereArgs", whereArgs);
+    private void viewOrEdit(Character action, String[] whereArgs) { //Function to view or edit a record using addEntry activity
+        Intent intent = new Intent(ViewEntries.this, addEntry.class); //Create intent to load addEntry
+        intent.putExtra("Action", action); //add action (view or edit) as extra
+        intent.putExtra("whereArgs", whereArgs); //add SQL arguments to specify record as extra
 
-        final DBHelper dbHelper = new DBHelper(ViewEntries.this);
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor crsr = db.rawQuery("SELECT StartDate,StartTime,EndDate,EndTime,MsSlept,Rating,Dream FROM SleepDiaryDB WHERE StartDate = ? AND StartTime = ?", whereArgs);
+        final DBHelper dbHelper = new DBHelper(ViewEntries.this); //Get database helper
+        SQLiteDatabase db = dbHelper.getReadableDatabase(); //Get readable database
+        Cursor crsr = db.rawQuery(getString(R.string.SelectRecord), whereArgs); //Select contents of record using Cursor
         diaryRecord ViewEntry = null;
         if (crsr.moveToFirst()) {
             do {
+                //Get contents of record from Cursor
                 ViewEntry = new diaryRecord(crsr.getString(0), crsr.getString(1), crsr.getString(2), crsr.getString(3), crsr.getLong(4), crsr.getFloat(5), crsr.getString(6));
             } while (crsr.moveToNext());
         }
-        crsr.close();
-        db.close();
-        intent.putExtra("vSD", dbHelper.convertUTC(ViewEntry.StartDate, false));
-        intent.putExtra("vST", ViewEntry.StartTime);
-        intent.putExtra("vED", dbHelper.convertUTC(ViewEntry.EndDate, false));
-        intent.putExtra("vET", ViewEntry.EndTime);
-        intent.putExtra("vMS", ViewEntry.MsSlept);
-        intent.putExtra("vRT", ViewEntry.Rating);
-        intent.putExtra("vDR", ViewEntry.Dream);
-        startActivity(intent);
-        onStop();
+        crsr.close(); //Close cursor
+        db.close(); //Close database
+        assert ViewEntry != null; //Assert record is not null
+        //Add fields in row as intent extras
+        intent.putExtra("vSD", dbHelper.convertUTC(ViewEntry.StartDate, false)); //Start date
+        intent.putExtra("vST", ViewEntry.StartTime); //Start time
+        intent.putExtra("vED", dbHelper.convertUTC(ViewEntry.EndDate, false)); //End date
+        intent.putExtra("vET", ViewEntry.EndTime); //End time
+        intent.putExtra("vMS", ViewEntry.MsSlept); //Time slept in milliseconds
+        intent.putExtra("vRT", ViewEntry.Rating); //Rating out of 5
+        intent.putExtra("vDR", ViewEntry.Dream); //Notes about dreams
+        startActivity(intent); //Call intent
+        onStop(); //Stop activity
     }
 
-    protected void onStart() {
+    protected void onStart() { //When activity opened/restarted
         super.onStart();
         TableLayout tblLayout = findViewById(R.id.tblLayout);
         tblLayout.removeAllViews(); //clear table
@@ -238,31 +248,31 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
     }
 
     @Override
-    public void onLongPress(MotionEvent e) {
-        Log.d("Touch", "onLongPress: " + e.getDownTime());
-        AlertDialog.Builder deleteAll = new AlertDialog.Builder(ViewEntries.this);
-        deleteAll.setTitle("Delete all records?")
-                .setMessage("Are you sure you want to delete all your sleep records?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+    public void onLongPress(MotionEvent e) { //When user holds down on screen
+        Log.d("Touch", "onLongPress: " + e.getDownTime()); //Log length of time user long presses for
+        AlertDialog.Builder deleteAll = new AlertDialog.Builder(ViewEntries.this); //Create dialog to delete all records
+        deleteAll.setTitle("Delete all records?") //Set title
+                .setMessage("Are you sure you want to delete all your sleep records?") //Set message
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() { //If yes
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        final DBHelper dbHelper = new DBHelper(ViewEntries.this);
-                        final SQLiteDatabase db = dbHelper.getReadableDatabase();
-                        db.delete("SleepDiaryDB", null, null);
+                        final DBHelper dbHelper = new DBHelper(ViewEntries.this); //Get database helper
+                        final SQLiteDatabase db = dbHelper.getReadableDatabase(); //Get readable database
+                        db.delete("SleepDiaryDB", null, null); //Delete all rows of table
                         final TableLayout tblLayout = findViewById(R.id.tblLayout);
-                        tblLayout.removeAllViews();
-                        display();
+                        tblLayout.removeAllViews(); //Clear table
+                        display(); //Refresh table
                         return;
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton("No", new DialogInterface.OnClickListener() { //If no
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        return;
+                        return; //Cancel
                     }
                 });
-        Dialog deleteDialog = deleteAll.create();
-        deleteDialog.show();
+        Dialog deleteDialog = deleteAll.create(); //Create dialog
+        deleteDialog.show(); //Show dialog
     }
 
     @Override

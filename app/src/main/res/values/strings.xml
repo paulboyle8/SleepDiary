@@ -30,4 +30,5 @@
     <string name="set_end_date">Set end date</string>
     <string name="set_start_time">Set start time</string>
     <string name="redstar"><![CDATA[<font color=red>*</font>]]></string>
+    <string name="SelectRecord">SELECT StartDate,StartTime,EndDate,EndTime,MsSlept,Rating,Dream FROM SleepDiaryDB WHERE StartDate = ? AND StartTime = ?</string>
 </resources>
