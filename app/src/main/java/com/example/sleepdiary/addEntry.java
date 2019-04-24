@@ -49,9 +49,9 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             @Override
             public void onClick(View v) {
                 startTrue = true; //Time for starting sleep is being set
-                SharedPreferences spTimes = getSharedPreferences("times", 0); //Open shared preferences
-                int hour = Integer.parseInt(spTimes.getString("ST", "23").substring(0, 2)); //Set default time as last time entered
-                int min = Integer.parseInt(spTimes.getString("ST", "23:00").substring(3, 5));
+                SharedPreferences spTimes = getSharedPreferences("addSleep", 0); //Open shared preferences
+                int hour = Integer.parseInt(spTimes.getString("SH", "23")); //Set default time as last time entered
+                int min = Integer.parseInt(spTimes.getString("SM", "00"));
                 String title = getString(R.string.set_start_time); //Set title for dialog
                 TimePickerDialog timePickerDialog = new TimePickerDialog(addEntry.this, addEntry.this, hour, min, DateFormat.is24HourFormat(getApplicationContext())); //Initialise time picker
                 timePickerDialog.setTitle(title); //Set title
@@ -63,9 +63,9 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
             @Override
             public void onClick(View v) {
                 startTrue = false;
-                SharedPreferences spTimes = getSharedPreferences("times", 0);
-                int hour = Integer.parseInt(spTimes.getString("ET", "07").substring(0, 2));
-                int min = Integer.parseInt(spTimes.getString("ET", "07:00").substring(3, 5));
+                SharedPreferences spTimes = getSharedPreferences("addSleep", 0);
+                int hour = Integer.parseInt(spTimes.getString("EH", "07"));
+                int min = Integer.parseInt(spTimes.getString("EM", "00"));
                 String title = getString(R.string.set_end_time);
                 TimePickerDialog timePickerDialog = new TimePickerDialog(addEntry.this, addEntry.this, hour, min, DateFormat.is24HourFormat(getApplicationContext())); //set 24 hour bool
                 timePickerDialog.setTitle(title);
@@ -124,7 +124,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 } else if (!startFirst(txtStartDate.getText().toString(), txtStartTime.getText().toString(), txtEndDate.getText().toString(), txtEndTime.getText().toString())) {
                     AlertDialog.Builder incomplete = new AlertDialog.Builder(addEntry.this); //display error message
                     incomplete.setTitle(R.string.error)
-                            .setMessage("Bedtime cannot be before start time")
+                            .setMessage("Bedtime cannot be after start time")
                             .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -235,10 +235,18 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
     @Override
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) { //If time entered in dialog
         TextView txtTime;
+        //String spName;
+        SharedPreferences sharedAdd = getSharedPreferences("addSleep", 0);
+        SharedPreferences.Editor addEditor = sharedAdd.edit();
+
         if (startTrue) { //If start time is being entered
             txtTime = findViewById(R.id.txtStartTime); //Display in start time text view
+            addEditor.putString("SH", convNum(hourOfDay)).apply();
+            addEditor.putString("SM", convNum(minute)).apply();
         } else {
             txtTime = findViewById(R.id.txtEndTime); //Else, display end time in respective text view
+            addEditor.putString("EH", convNum(hourOfDay)).apply();
+            addEditor.putString("EM", convNum(minute)).apply();
         }
         txtTime.setText(convNum(hourOfDay) + ":" + convNum(minute)); //Display time
         calcDiff(); //Call function to calculate difference between start and end time

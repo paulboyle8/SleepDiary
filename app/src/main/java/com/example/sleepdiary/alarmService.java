@@ -122,7 +122,10 @@ public class alarmService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) { //Make broadcast receiver
                 wakeNot(); //Make wake up notification
-                sendBroadcast(new Intent("SwitchOff")); //Send broadcast to switch off reminders switch on PlanSleep
+                //sendBroadcast(new Intent("SwitchOff")); //Send broadcast to switch off reminders switch on PlanSleep
+                SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0); //Open shared preferences
+                SharedPreferences.Editor planEditor = sharedPlan.edit(); //Edit shared preferences
+                planEditor.putBoolean("Reminders", false).apply(); //Switch off reminders
                 unregisterReceiver(wakeBR); //Unregister receiver
             }
         };
@@ -171,7 +174,7 @@ public class alarmService extends Service {
         calendar.set(Calendar.MINUTE, min); //Set calender minute to parameter minute
         assert manager != null; //Assert alarm manager is not null
         manager.setExact(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent); //Use alarm manager to create broadcast at specified time
-        switch (mute){
+        /*switch (mute){
             case 0 : break; //If 30 min reminder being made, ignore
             case 1 : { //If bed time notification
                 AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Start audio manager
@@ -193,7 +196,7 @@ public class alarmService extends Service {
                 audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sharedVols.getInt("Music",0), 0); //Set music volume to previous volume from shared preferences
                 break;
             }
-        }
+        }*/
     }
 
     @Nullable
@@ -206,9 +209,23 @@ public class alarmService extends Service {
 
     public void bedNow(){
         notificationManager.notify(2, buildBedTime.build());
+        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Start audio manager
+        assert audioManager != null; //Assert audioManager variable is not null
+        SharedPreferences sharedVols = getSharedPreferences("volumes", 0); //Get shared preferences for volumes
+        SharedPreferences.Editor volEditor = sharedVols.edit(); //Edit shared preferences
+        volEditor.putInt("Notifs", audioManager.getStreamVolume(AudioManager.STREAM_NOTIFICATION)).apply(); //Put current notification volume in shared preferences
+        volEditor.putInt("Music", audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).apply(); //Put current music volume in shared preferences
+
+        audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0); //Mute notifications
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0); //Mute music
     }
 
     public void wakeNot(){
         notificationManager.notify(3, buildWake.build());
+        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Get audio manager
+        assert audioManager != null;
+        SharedPreferences sharedVols = getSharedPreferences("volumes", 0); //Get volumes shared preferences
+        audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, sharedVols.getInt("Notifs",0), 0); //Set notification volume to previous volume from shared preferences
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, sharedVols.getInt("Music",0), 0); //Set music volume to previous volume from shared preferences
     }
 }
