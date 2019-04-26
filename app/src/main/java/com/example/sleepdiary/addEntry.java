@@ -97,7 +97,7 @@ public class addEntry extends AppCompatActivity implements TimePickerDialog.OnTi
                 c.add(Calendar.DATE, -1); //When picking start date, set default for start date as previous day
                 int year = c.get(Calendar.YEAR);
                 int month = c.get(Calendar.MONTH);
-                int day = (c.get(Calendar.DAY_OF_MONTH));
+                int day = c.get(Calendar.DAY_OF_MONTH);
                 String title = "Set end date";
                 DatePickerDialog datePickerDialog = new DatePickerDialog(addEntry.this, addEntry.this, year, month, day);
                 datePickerDialog.setTitle(title);

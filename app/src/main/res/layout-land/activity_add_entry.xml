@@ -115,9 +115,10 @@
 
             <TextView
                 android:id="@+id/lblRate"
-                android:layout_width="362dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/how_would"
+                android:textAlignment="viewStart"
                 android:textSize="24sp" />
 
             <RatingBar
@@ -133,7 +134,7 @@
         <EditText
             android:id="@+id/txtDream"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/dream_notes"
             android:inputType="textMultiLine" />

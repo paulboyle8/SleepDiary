@@ -37,8 +37,8 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
         btnBack.setOnClickListener(new View.OnClickListener() { //On back button press, go to previous activity
             @Override
             public void onClick(View v) {
-                onStop();
                 onBackPressed();
+                onStop();
             }
         });
         final Button btnHome = findViewById(R.id.btnHome); //Button to return to main activity

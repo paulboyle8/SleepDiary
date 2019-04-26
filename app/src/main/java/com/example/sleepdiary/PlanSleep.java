@@ -180,17 +180,6 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
                 onBackPressed();
             }
         });
-       /* final BroadcastReceiver wakeSwitch = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) { //When wake up broadcast received
-                swOn.setChecked(false); //Turn off reminders
-                SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0); //Open shared preferences
-                SharedPreferences.Editor planEditor = sharedPlan.edit(); //Edit shared preferences
-                planEditor.putBoolean("Reminders", false).apply(); //Switch off reminders
-                unregisterReceiver(this); //unregister broadcast receiver
-            }
-        };
-        registerReceiver(wakeSwitch, new IntentFilter("SwitchOff"));*/
     }
 
     public String displayHM() {

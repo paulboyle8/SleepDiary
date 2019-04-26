@@ -7,75 +7,101 @@
     android:background="@color/colorBackground"
     tools:context=".ViewEntries">
 
-    <LinearLayout
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/lblInfo"
+        app:layout_constraintDimensionRatio=""
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="500dp">
-
-            <TableLayout
-                android:id="@+id/tblLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:gravity="center_horizontal" />
-        </ScrollView>
-
-        <TextView
-            android:id="@+id/lblInfo"
+        <TableLayout
+            android:id="@+id/tblLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/view_instruct"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="18sp" />
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal" />
+    </ScrollView>
 
-        <TextView
-            android:id="@+id/lblAvgMS"
+    <TextView
+        android:id="@+id/lblInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/view_instruct"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toTopOf="@+id/lblAvgMS"
+        app:layout_constraintTop_toBottomOf="@+id/scrollView" />
+
+
+   <!-- <LinearLayout
+        android:id="@+id/linAvgs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/linBtns"
+        app:layout_constraintTop_toBottomOf="@+id/lblInfo">-->
+
+    <TextView
+        android:id="@+id/lblAvgMS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/lblAvgR"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lblInfo" />
+
+    <TextView
+        android:id="@+id/lblAvgR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textAlignment="center"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/linBtns"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+    <!--</LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/linBtns"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <Button style="@style/sdButton"
+            android:id="@+id/btnBack"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="24sp" />
+            android:layout_weight="1"
+            android:text="@string/back" />
 
-
-        <TextView
-            android:id="@+id/lblAvgR"
+        <Button style="@style/sdButton"
+            android:id="@+id/btnHome"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:textColor="@android:color/black"
-            android:textSize="24sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal">
-
-            <Button style="@style/sdButton"
-                android:id="@+id/btnBack"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/back"
-                tools:layout_editor_absoluteX="161dp"
-                tools:layout_editor_absoluteY="575dp" />
-
-            <Button style="@style/sdButton"
-                android:id="@+id/btnHome"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/home"
-                tools:layout_editor_absoluteX="76dp"
-                tools:layout_editor_absoluteY="652dp" />
-        </LinearLayout>
-
+            android:layout_weight="1"
+            android:text="@string/home"
+            tools:layout_editor_absoluteX="76dp"
+            tools:layout_editor_absoluteY="652dp" />
     </LinearLayout>
 
 </android.support.constraint.ConstraintLayout>
