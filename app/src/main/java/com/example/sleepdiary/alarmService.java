@@ -10,12 +10,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.provider.AlarmClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import java.util.Calendar;
 
@@ -29,7 +34,8 @@ public class alarmService extends Service {
     NotificationCompat.Builder buildBedPrep;
     NotificationCompat.Builder buildBedTime;
     NotificationCompat.Builder buildWake;
-    String channelID;
+    NotificationCompat.Builder buildLuxPrep;
+    NotificationCompat.Builder buildLuxBed;
     boolean boolReminders;
     boolean remindSent;
     boolean bedSent;
@@ -37,25 +43,46 @@ public class alarmService extends Service {
     BroadcastReceiver wakeBR;
     BroadcastReceiver bedBR;
     BroadcastReceiver prepBR;
+    SensorManager sensorManager;
+    Sensor sensor;
+    SensorEventListener sensorEventListener;
+    float lux;
 
     @Override
     public void onCreate() {
         super.onCreate();
         initChannel();//Make notification channel
-    }
+}
 
+    @Override
+    public void onDestroy(){ //Destroy service
+        super.onDestroy();
+        //Unregister broadcast receivers
+        if (wakeBR!=null) {
+            unregisterReceiver(wakeBR);
+        }
+        if (bedBR!=null) {
+            unregisterReceiver(bedBR);
+        }
+        if (prepBR!=null) {
+            unregisterReceiver(prepBR);
+        }
+        if (sensorEventListener!=null) {
+            sensorManager.unregisterListener(sensorEventListener);
+        }
+    }
     private void makeNotifs(){
         if (Build.VERSION.SDK_INT < 26){ //If API level outdated
             return; //Don't make notifications
         }//Else
-        buildBedPrep = new NotificationCompat.Builder(this, channelID) //Build notification to prepare for bed
+        buildBedPrep = new NotificationCompat.Builder(this, "SDPrep") //Build notification to prepare for bed
                 .setSmallIcon(R.drawable.diaryicon) //Set notification icon
                 .setContentTitle("Get Ready for Bed") //Set title
                 .setContentText("Go to bed by " + bed + " to get " + sleepTime + " sleep") //Set content
                 .setPriority(NotificationCompat.PRIORITY_HIGH) //Set high priority
                 .setAutoCancel(false); //Notification will not auto cancel
 
-        buildBedTime = new NotificationCompat.Builder(this, channelID)
+        buildBedTime = new NotificationCompat.Builder(this, "SDBed")
                 .setSmallIcon(R.drawable.diaryicon)
                 .setContentTitle("Time for Bed")
                 .setContentText("Go to sleep now to get " + sleepTime + " sleep")
@@ -64,9 +91,10 @@ public class alarmService extends Service {
 
         Intent openAddEntry = new Intent(this, addEntry.class); //Make intent to start addEntry
         openAddEntry.putExtra("WakeUp", true); //Add WakeUp as true as intent extra
+        openAddEntry.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //Intent not called from activity
         PendingIntent pOpenAdd = PendingIntent.getActivity(this, 0, openAddEntry, 0); //Make pending intent from intent
 
-        buildWake = new NotificationCompat.Builder(this, channelID)
+        buildWake = new NotificationCompat.Builder(this, "SDWake")
                 .setSmallIcon(R.drawable.diaryicon)
                 .setContentTitle("Time to get up!")
                 .setContentText("Log your sleep")
@@ -84,11 +112,18 @@ public class alarmService extends Service {
             return; //Don't make notifications
         }//Else
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE); //Open notification manager
-        channelID = "SleepDiaryCID"; //Set notification channel ID
-        CharSequence channelName = "SleepDiary Channel"; //Set notification channel name
         int importance = NotificationManager.IMPORTANCE_HIGH; //Set importance as high
-        NotificationChannel notificationChannel = new NotificationChannel(channelID, channelName, importance);
-        notificationManager.createNotificationChannel(notificationChannel);//Create new channel
+        //Set up notification channels
+        NotificationChannel wakeNC = new NotificationChannel("SDWake", "SleepDiaryWake", importance);
+        NotificationChannel bedNC = new NotificationChannel("SDBed", "SleepDiaryBed", importance);
+        NotificationChannel prepNC = new NotificationChannel("SDPrep", "SleepDiaryPrep", importance);
+        NotificationChannel luxPrepNC = new NotificationChannel("SDLuxP", "SleepDiaryPrepLux", importance);
+        NotificationChannel luxBedNC = new NotificationChannel("SDLuxB", "SleepDiaryBedLux", importance);
+        notificationManager.createNotificationChannel(wakeNC);//Create wake up channel
+        notificationManager.createNotificationChannel(bedNC);//Create bed time channel
+        notificationManager.createNotificationChannel(prepNC);//Create prepare for bed channel
+        notificationManager.createNotificationChannel(luxBedNC);//Create too bright at bedtime channel
+        notificationManager.createNotificationChannel(luxPrepNC);//Create too bright before bedtime channel
     }
 
     @Override
@@ -100,10 +135,11 @@ public class alarmService extends Service {
         sendBroadcast(dismissIntent);
         boolReminders = intent.getBooleanExtra("boolReminders", false ); //Get state of reminders
         if (!boolReminders){//If reminders have been switched off
-            //Unregister broadcast receivers
+            //Unregister broadcast receivers and sensor listener
             if (wakeBR!=null){unregisterReceiver(wakeBR);}
             if (bedBR!=null){unregisterReceiver(bedBR);}
             if (prepBR!=null){unregisterReceiver(prepBR);}
+            if (sensorEventListener!=null) {sensorManager.unregisterListener(sensorEventListener);}
             return super.onStartCommand(intent, flags, startId);
         }
         bed = intent.getStringExtra("bed"); //Get bed time
@@ -121,6 +157,23 @@ public class alarmService extends Service {
         int prepHour = Integer.parseInt(bedPrep.substring(0,2)); //Get hour for bedtime reminder
         int prepMin = Integer.parseInt(bedPrep.substring(3,5)); //Get minute for bedtime reminder
 
+        sensorEventListener = new SensorEventListener() { //Start sensor listener
+            @Override
+            public void onSensorChanged(SensorEvent event) {
+                if (event.sensor.getType() == Sensor.TYPE_LIGHT) //If light sensor detects change
+                {
+                    lux = event.values[0]; //Update light variable
+                }
+            }
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int accuracy) { //If sensor accuracy changes
+                Log.d("Sensor accuracy", "Light sensor: " + accuracy); //Log new accuracy
+            }
+        };
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE); //Set sensor manager
+        sensor = sensorManager.getDefaultSensor(Sensor.TYPE_LIGHT); //Set sensor type, i.e. light
+        sensorManager.registerListener(sensorEventListener, sensor, SensorManager.SENSOR_DELAY_NORMAL); //Register sensor listener
+
         wakeBR = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) { //Make broadcast receiver
@@ -128,7 +181,7 @@ public class alarmService extends Service {
                 SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0); //Open shared preferences
                 SharedPreferences.Editor planEditor = sharedPlan.edit(); //Edit shared preferences
                 planEditor.putBoolean("Reminders", false).apply(); //Switch off reminders
-                unregisterReceiver(wakeBR); //Unregister receiver
+                sendBroadcast(new Intent("SwitchOff").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); //Send broadcast to switch off reminders switch on PlanSleep
             }
         };
         registerReceiver(wakeBR, new IntentFilter("WakeUp")); //Register receiver
@@ -137,7 +190,6 @@ public class alarmService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 bedNow();
-                unregisterReceiver(bedBR);
             }
         };
         registerReceiver(bedBR, new IntentFilter("BedTime"));
@@ -146,16 +198,13 @@ public class alarmService extends Service {
             @Override
             public void onReceive(Context context, Intent intent) {
                 bedReminder();
-                unregisterReceiver(prepBR);
             }
         };
         registerReceiver(prepBR, new IntentFilter("BedPrep"));
 
         makeNotification("WakeUp", wakeHour, wakeMin, 2); //Make wake notification
         makeNotification("BedTime", bedHour, bedMin, 1); //Make bed notification
-        if (Build.VERSION.SDK_INT > 25){ //If API level outdated
-            makeNotification("BedPrep", prepHour, prepMin, 0); //Make reminder notification
-        }//Else
+        makeNotification("BedPrep", prepHour, prepMin, 0); //Make reminder notification
         Intent alarmIntent = new Intent(AlarmClock.ACTION_SET_ALARM); //Make intent for setting alarm
         alarmIntent.putExtra(AlarmClock.EXTRA_HOUR, wakeHour); //Add hour
         alarmIntent.putExtra(AlarmClock.EXTRA_MINUTES, wakeMin); //Add minute
@@ -167,7 +216,7 @@ public class alarmService extends Service {
 
     private void makeNotification(String action, int hour, int min, int mute){
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE); //Open alarm manager
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(action), 0); //Make intent to broadcast action
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, new Intent(action).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK), 0); //Make intent to broadcast action
         Calendar calendar = Calendar.getInstance(); //Get calender
         calendar.setTimeInMillis(System.currentTimeMillis()); //Set to current time
         if (hour < calendar.get(Calendar.HOUR_OF_DAY) || (hour == calendar.get(Calendar.HOUR_OF_DAY) && min < calendar.get(Calendar.MINUTE))){
@@ -185,11 +234,35 @@ public class alarmService extends Service {
         return null;
     }
 
-    public void bedReminder(){ notificationManager.notify(1, buildBedPrep.build()); }
+    //mySleepDiary will display notifications if the user's environment is too bright for sleeping
+    //Ideal light levels for preparing for sleep (>180 Lux) and going to sleep (>=5 Lux) retrieved from http://sleep.mysplus.com/library/category2/article1.html
+    public void bedReminder(){ //Notification for 30 reminder
+        if (Build.VERSION.SDK_INT > 25) { //If API level not outdated
+            notificationManager.notify(1, buildBedPrep.build()); //Build notification
+            if (lux > 180) { //If environment too bright
+                buildLuxPrep = new NotificationCompat.Builder(this, "SDLuxP") //Make notification
+                        .setSmallIcon(R.drawable.diaryicon) //Set icon
+                        .setContentTitle("Your surroundings are too bright!") //Set title
+                        .setContentText("Dim them to help your body progress towards sleep.") //Set message
+                        .setPriority(NotificationCompat.PRIORITY_HIGH) //Set priority as high
+                        .setAutoCancel(false);
+                notificationManager.notify(4, buildLuxPrep.build()); //Build notification
+            }
+        }
+    }
 
     public void bedNow(){
         if (Build.VERSION.SDK_INT > 25){ //If API level not outdated
             notificationManager.notify(2, buildBedTime.build()); //make notification
+            if (lux >= 5){ //If environment too bright for sleeping
+                buildLuxBed = new NotificationCompat.Builder(this, "SDLuxB")
+                        .setSmallIcon(R.drawable.diaryicon)
+                        .setContentTitle("Your surroundings are too bright!")
+                        .setContentText("Turn off lights to help you sleep.")
+                        .setPriority(NotificationCompat.PRIORITY_HIGH)
+                        .setAutoCancel(false);
+                notificationManager.notify(5, buildLuxBed.build());
+            }
         }//Else
         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Start audio manager
         assert audioManager != null; //Assert audioManager variable is not null
@@ -199,10 +272,14 @@ public class alarmService extends Service {
         volEditor.putInt("Music", audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)).apply(); //Put current music volume in shared preferences
         audioManager.setStreamVolume(AudioManager.STREAM_NOTIFICATION, AudioManager.ADJUST_MUTE, 0); //Mute notifications
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0); //Mute music
+
+        if (sensorEventListener!=null) {
+            sensorManager.unregisterListener(sensorEventListener);
+        }
     }
 
     public void wakeNot(){
-        if (Build.VERSION.SDK_INT < 26){ //If API level not outdated
+        if (Build.VERSION.SDK_INT > 25){ //If API level not outdated
             notificationManager.notify(3, buildWake.build()); //Make notifications
         }//Else
         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE); //Get audio manager

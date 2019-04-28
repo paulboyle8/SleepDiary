@@ -34,6 +34,7 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
     String bedPrep;
     TextView lblHM;
     Switch swOn;
+    BroadcastReceiver wakeSwitch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -174,6 +175,21 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
 
 
         });
+         wakeSwitch = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) { //When wake up broadcast received
+                swOn.setChecked(false); //Turn off reminders
+                SharedPreferences sharedPlan = getSharedPreferences("planSleep", 0); //Open shared preferences
+                SharedPreferences.Editor planEditor = sharedPlan.edit(); //Edit shared preferences
+                planEditor.putBoolean("Reminders", false).apply(); //Switch off reminders
+            }
+        };
+        try {
+            unregisterReceiver(wakeSwitch);
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+        registerReceiver(wakeSwitch, new IntentFilter("SwitchOff"));
         btnBack.setOnClickListener(new View.OnClickListener() { //Go back to previous activity
             @Override
             public void onClick(View v) {
@@ -262,7 +278,7 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
     }
 
     private boolean areFieldsFull(){
-        if (txtWake.getText() == "" || txtBed.getText() == "" ){
+        if (txtWake.getText() == "" || txtBed.getText() == "" ){//If fields are not filled correctly
             AlertDialog.Builder incomplete = new AlertDialog.Builder(this); //display error message
             incomplete.setTitle("Error")
                     .setMessage("Please fill in all fields before submitting")
@@ -278,6 +294,15 @@ public class PlanSleep extends AppCompatActivity implements TimePickerDialog.OnT
         }
         else{
             return true;
+        }
+    }
+
+    public void onStop() { //When stopping the activity
+        super.onStop();
+        try {
+            unregisterReceiver(wakeSwitch); //Unregister broadcast receiver
+        } catch(IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
 }

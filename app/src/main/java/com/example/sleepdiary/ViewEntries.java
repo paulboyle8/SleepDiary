@@ -103,7 +103,6 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
                         /*new Thread(new Runnable() { //New concurrent thread
                             @Override
                             public void run() {*/
-
                                 final TableRow row = new TableRow(ViewEntries.this); //Make and configure table row
                                 row.setGravity(Gravity.CENTER);
                                 row.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
@@ -134,7 +133,6 @@ public class ViewEntries extends AppCompatActivity implements GestureDetector.On
                                     row.addView(lbl);
                                 }
                                 tblLayout.addView(row); //Add row to table
-
                             /*}
                         }).start(); //start thread*/
                     }
