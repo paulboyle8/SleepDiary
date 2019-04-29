@@ -52,23 +52,27 @@ public class alarmService extends Service {
     public void onCreate() {
         super.onCreate();
         initChannel();//Make notification channel
-}
+    }
 
     @Override
     public void onDestroy(){ //Destroy service
         super.onDestroy();
         //Unregister broadcast receivers
-        if (wakeBR!=null) {
-            unregisterReceiver(wakeBR);
-        }
-        if (bedBR!=null) {
-            unregisterReceiver(bedBR);
-        }
-        if (prepBR!=null) {
-            unregisterReceiver(prepBR);
-        }
-        if (sensorEventListener!=null) {
-            sensorManager.unregisterListener(sensorEventListener);
+        try {
+            if (wakeBR != null) {
+                unregisterReceiver(wakeBR);
+            }
+            if (bedBR != null) {
+                unregisterReceiver(bedBR);
+            }
+            if (prepBR != null) {
+                unregisterReceiver(prepBR);
+            }
+            if (sensorEventListener != null) {
+                sensorManager.unregisterListener(sensorEventListener);
+            }
+        }catch(IllegalArgumentException e) {
+            e.printStackTrace();
         }
     }
     private void makeNotifs(){
@@ -136,10 +140,21 @@ public class alarmService extends Service {
         boolReminders = intent.getBooleanExtra("boolReminders", false ); //Get state of reminders
         if (!boolReminders){//If reminders have been switched off
             //Unregister broadcast receivers and sensor listener
-            if (wakeBR!=null){unregisterReceiver(wakeBR);}
-            if (bedBR!=null){unregisterReceiver(bedBR);}
-            if (prepBR!=null){unregisterReceiver(prepBR);}
-            if (sensorEventListener!=null) {sensorManager.unregisterListener(sensorEventListener);}
+            try {
+                if (wakeBR != null) {
+                    unregisterReceiver(wakeBR);
+                }
+                if (bedBR != null) {
+                    unregisterReceiver(bedBR);
+                }
+                if (prepBR != null) {
+                    unregisterReceiver(prepBR);
+                }
+                if (sensorEventListener != null) {
+                    sensorManager.unregisterListener(sensorEventListener);
+                }
+            } catch(IllegalArgumentException e) {
+                e.printStackTrace();}
             return super.onStartCommand(intent, flags, startId);
         }
         bed = intent.getStringExtra("bed"); //Get bed time
@@ -274,7 +289,11 @@ public class alarmService extends Service {
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, AudioManager.ADJUST_MUTE, 0); //Mute music
 
         if (sensorEventListener!=null) {
-            sensorManager.unregisterListener(sensorEventListener);
+            try {
+                sensorManager.unregisterListener(sensorEventListener);
+            } catch(IllegalArgumentException e) {
+                e.printStackTrace();
+            }
         }
     }
 

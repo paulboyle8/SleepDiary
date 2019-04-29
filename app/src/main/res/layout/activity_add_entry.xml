@@ -15,8 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.701">
+        app:layout_constraintTop_toTopOf="parent">
 
         <TableLayout
             android:layout_width="match_parent"
@@ -134,8 +133,9 @@
             android:hint="@string/dream_notes"
             android:inputType="textMultiLine" />
 
-        <Button style="@style/sdButton"
+        <Button
             android:id="@+id/btnSubmit"
+            style="@style/sdButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sleep_data" />
@@ -146,8 +146,9 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button style="@style/sdButton"
+            <Button
                 android:id="@+id/btnBack"
+                style="@style/sdButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -155,8 +156,9 @@
                 tools:layout_editor_absoluteX="76dp"
                 tools:layout_editor_absoluteY="652dp" />
 
-            <Button style="@style/sdButton"
+            <Button
                 android:id="@+id/btnHome"
+                style="@style/sdButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
